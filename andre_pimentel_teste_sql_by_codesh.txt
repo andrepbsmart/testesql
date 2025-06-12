@@ -1,0 +1,40 @@
+** Listar todos Clientes que não tenham realizado uma compra;
+select customer.customer_id,customer.first_name + ' ' + customer.last_name customer_name from customer left outer join orders
+on customer.customer_id=orders.customer_id where (orders.customer_id is null)
+
+** Listar os Produtos que não tenham sido comprados
+select product.product_id,product.product_name from product left outer join order_items
+on product.product_id=order_items.product_id where (order_items.product_id is null)
+
+
+** Listar os Produtos sem Estoque;
+select distinct product.product_id,product.product_name from product inner join stocks
+on product.product_id=stocks.product_id where stocks.quantity=0
+
+select product.product_id,product.product_name,stores.store_name 
+	from product inner join stocks on product.product_id=stocks.product_id 
+				 inner join stores on stocks.store_id=stores.store_id
+	where stocks.quantity=0
+
+obs: como não foi especificado se era por loja ou sintetizado por produto, montei as duas querys
+
+
+** Agrupar a quantidade de vendas que uma determinada Marca por Loja. **
+select distinct Empresa.idEmpresa,Empresa.Nome,Marca.idMarca,Marca.Descricao
+,(select distinct count(PDV_Item.idPDV) from PDV
+	inner join PDV_Item on PDV.idPDV=PDV_Item.idPDV
+	inner join Produto on PDV_Item.idProduto=Produto.idProduto
+	where PDV.idEmpresa=Empresa.idEmpresa and Produto.idMarca=Marca.idMarca) as qt_order
+from Empresa 
+	inner join PDV on Empresa.idEmpresa=PDV.idEmpresa
+	inner join PDV_Item on PDV.idPDV=PDV_Item.idPDV
+	inner join Produto on PDV_Item.idProduto=Produto.idProduto
+	inner join Marca on Marca.idMarca=Marca.idMarca
+
+obs: * usei uma subquery para pegar a quantidade de vendas por marca e empresa, utilizando o distinct para que somente valores diferentes seja retornados.
+     * o join no final da query princial, é usado para relacionar a brand a store atreves das orders/products
+
+
+Listar os Funcionarios que não estejam relacionados a um Pedido.
+select staffs.staff_id,staffs.first_name + ' ' +staffs.last_name staff_name from staffs left outer join orders
+on staffs.staff_id=orders.staff_id where (orders.staff_id is null)
